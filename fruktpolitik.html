@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fruktpolitik – RSS</title>
+  <meta name="description" content="Responsiv RSS-läsare för Fruktpolitik.">
+  <style>
+    :root {
+      --bg: #f7f3ed;
+      --paper: #fffaf2;
+      --ink: #181512;
+      --muted: #756c61;
+      --line: rgba(24, 21, 18, .12);
+      --accent: #b33421;
+      --accent-2: #1f5d3b;
+      --danger: #8f2b1d;
+      --shadow: 0 22px 55px rgba(42, 30, 18, .12);
+      --radius: 24px;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(179, 52, 33, .14), transparent 34rem),
+        radial-gradient(circle at top right, rgba(31, 93, 59, .12), transparent 30rem),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: clamp(34px, 7vw, 84px) 0 28px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      padding: 8px 13px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 250, 242, .72);
+      color: var(--muted);
+      font-size: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .apple {
+      width: 13px;
+      height: 13px;
+      border-radius: 55% 45% 50% 50%;
+      background: var(--accent);
+      display: inline-block;
+      position: relative;
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,.12);
+    }
+
+    .apple::before {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 3px;
+      border-radius: 50%;
+      border-top: 1.5px solid #201714;
+      left: 3.5px;
+      top: 7px;
+      opacity: .9;
+    }
+
+    h1 {
+      max-width: 860px;
+      margin: 0;
+      font-size: clamp(38px, 6vw, 78px);
+      line-height: .94;
+      letter-spacing: -0.06em;
+      text-wrap: balance;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: clamp(17px, 2vw, 21px);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: 28px 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, .78);
+      box-shadow: 0 8px 35px rgba(42, 30, 18, .06);
+      backdrop-filter: blur(12px);
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .pill {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      background: #fffdf8;
+      white-space: nowrap;
+    }
+
+    .status {
+      margin: -12px 0 24px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .status--error {
+      color: var(--danger);
+      padding: 14px 16px;
+      border: 1px solid rgba(143, 43, 29, .22);
+      border-radius: 18px;
+      background: rgba(179, 52, 33, .07);
+    }
+
+    .feed {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding-bottom: 70px;
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 0;
+      min-height: 210px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 250, 242, .86);
+      box-shadow: var(--shadow);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 70px rgba(42, 30, 18, .16);
+      border-color: rgba(179, 52, 33, .22);
+    }
+
+    .thumb {
+      display: block;
+      position: relative;
+      min-height: 100%;
+      background:
+        linear-gradient(135deg, rgba(179, 52, 33, .20), rgba(31, 93, 59, .18)),
+        #e9dfd1;
+      overflow: hidden;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      min-height: 210px;
+      object-fit: cover;
+      display: block;
+      filter: saturate(.94) contrast(1.02);
+      transition: transform .35s ease;
+    }
+
+    .card:hover .thumb img {
+      transform: scale(1.035);
+    }
+
+    .thumb--empty {
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .thumb--empty span {
+      display: inline-grid;
+      place-items: center;
+      width: 92px;
+      height: 92px;
+      border: 1px solid rgba(24, 21, 18, .16);
+      border-radius: 50%;
+      background: rgba(255, 250, 242, .54);
+      color: rgba(24, 21, 18, .58);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      text-align: center;
+    }
+
+    .card__body {
+      padding: clamp(20px, 3vw, 34px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(24, 21, 18, .28);
+    }
+
+    .tag {
+      margin-left: 2px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(179, 52, 33, .09);
+      color: #8f2b1d;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    h2 {
+      margin: 0;
+      max-width: 760px;
+      font-size: clamp(22px, 2.8vw, 34px);
+      line-height: 1.05;
+      letter-spacing: -0.045em;
+      text-wrap: balance;
+    }
+
+    h2 a {
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 0% 1px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      transition: background-size .18s ease;
+    }
+
+    h2 a:hover {
+      background-size: 100% 1px;
+    }
+
+    p {
+      max-width: 760px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .read-more {
+      width: fit-content;
+      margin-top: 18px;
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .read-more span {
+      display: inline-block;
+      transition: transform .18s ease;
+    }
+
+    .read-more:hover span {
+      transform: translateX(3px);
+    }
+
+    .empty {
+      padding: 28px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: rgba(255, 250, 242, .55);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      padding: 26px 0 42px;
+      font-size: 14px;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 6px;
+      background: rgba(0,0,0,.06);
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 22px, var(--max));
+      }
+
+      .hero {
+        padding-top: 34px;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin: 22px 0;
+      }
+
+      .pills {
+        justify-content: flex-start;
+      }
+
+      .card {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        border-radius: 22px;
+      }
+
+      .thumb {
+        min-height: 180px;
+      }
+
+      .thumb img {
+        min-height: 180px;
+        max-height: 245px;
+      }
+
+      .thumb--empty {
+        min-height: 130px;
+      }
+
+      .thumb--empty span {
+        width: 74px;
+        height: 74px;
+      }
+
+      .card__body {
+        padding: 20px;
+      }
+
+      .meta {
+        font-size: 12.5px;
+      }
+
+      p {
+        font-size: 15.5px;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17120f;
+        --paper: #211a15;
+        --ink: #fff7ec;
+        --muted: #bcb0a2;
+        --line: rgba(255, 247, 236, .13);
+        --shadow: 0 22px 55px rgba(0, 0, 0, .28);
+      }
+
+      .toolbar,
+      .card,
+      .eyebrow,
+      .empty {
+        background: rgba(33, 26, 21, .80);
+      }
+
+      .pill {
+        background: rgba(255,255,255,.04);
+      }
+
+      .tag {
+        background: rgba(224, 93, 70, .16);
+        color: #ffab9d;
+      }
+
+      .thumb--empty span {
+        background: rgba(255,255,255,.05);
+        color: rgba(255, 247, 236, .70);
+      }
+
+      code {
+        background: rgba(255,255,255,.08);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="eyebrow"><span class="apple" aria-hidden="true"></span> <span id="eyebrow-text">Fruktpolitik · RSS</span></div>
+      <h1 id="page-title">Laddar RSS…</h1>
+      <p class="lead" id="page-description">Hämtar titel, beskrivning och uppdateringstid från RSS-dokumentet.</p>
+    </header>
+
+    <section class="toolbar" aria-label="Översikt">
+      <div class="count" id="count">Laddar nyheter…</div>
+      <div class="pills" aria-label="Partier">
+        <span class="pill">Moderaterna</span>
+        <span class="pill">Kristdemokraterna</span>
+        <span class="pill">Sverigedemokraterna</span>
+        <span class="pill">Liberalerna</span>
+      </div>
+    </section>
+
+    <div class="status" id="status">RSS-flödet laddas från hårdkodad adress.</div>
+
+    <section class="feed" id="feed" aria-label="Nyhetslista"></section>
+  </main>
+
+  <footer class="page">
+    <span id="footer-text">© Fruktpolitik · Källor öppnas i ny flik.</span>
+  </footer>
+
+  <script>
+
+    const RSS_FEED_URL = "https://fruktpolitik.github.io/nyheter.xml";
+
+    const feedEl = document.getElementById("feed");
+    const countEl = document.getElementById("count");
+    const statusEl = document.getElementById("status");
+    const pageTitleEl = document.getElementById("page-title");
+    const pageDescriptionEl = document.getElementById("page-description");
+    const eyebrowTextEl = document.getElementById("eyebrow-text");
+    const footerTextEl = document.getElementById("footer-text");
+
+    loadFeed(RSS_FEED_URL);
+
+    async function loadFeed(url) {
+      setStatus(`Laddar RSS från ${url}…`);
+      countEl.textContent = "Laddar nyheter…";
+      feedEl.innerHTML = "";
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Accept": "application/rss+xml, application/xml, text/xml, */*"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status} ${response.statusText}`);
+        }
+
+        const xmlText = await response.text();
+        const parsed = parseRss(xmlText);
+
+        applyChannelMetadata(parsed.channel, url);
+        renderItems(parsed.items, parsed.channel, url);
+      } catch (error) {
+        pageTitleEl.textContent = "RSS-flödet kunde inte laddas";
+        pageDescriptionEl.textContent = "Kontrollera den hårdkodade RSS-adressen i HTML-filen.";
+        countEl.textContent = "0 nyheter";
+        setStatus(
+          `Kunde inte ladda RSS-flödet. Kontrollera URL:en och att servern tillåter CORS. Fel: ${error.message}`,
+          true
+        );
+        feedEl.innerHTML = `
+          <div class="empty">
+            <strong>RSS-flödet kunde inte hämtas.</strong><br>
+            Om du testar lokalt: kör sidan via en lokal webbserver, till exempel <code>python -m http.server</code>,
+            och lägg RSS-filen bredvid HTML-filen som <code>feed.xml</code>.
+          </div>
+        `;
+      }
+    }
+
+    function parseRss(xmlText) {
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      const parserError = doc.querySelector("parsererror");
+
+      if (parserError) {
+        throw new Error("RSS/XML kunde inte tolkas.");
+      }
+
+      const channelNode = doc.querySelector("channel");
+
+      if (!channelNode) {
+        throw new Error("RSS-dokumentet saknar <channel>.");
+      }
+
+      const channel = {
+        title: text(channelNode, "title") || "Fruktpolitik",
+        description: cleanDescription(text(channelNode, "description") || ""),
+        link: text(channelNode, "link") || "",
+        lastBuildDateText: text(channelNode, "lastBuildDate") || "",
+        pubDateText: text(channelNode, "pubDate") || "",
+        ttl: text(channelNode, "ttl") || ""
+      };
+
+      channel.updatedDate = parseDate(channel.lastBuildDateText || channel.pubDateText);
+
+      const rawItems = Array.from(channelNode.querySelectorAll(":scope > item"));
+
+      const items = rawItems.map((item) => {
+        const title = text(item, "title") || "Utan rubrik";
+        const rawDescription =
+          text(item, "description") ||
+          textByTagName(item, "content:encoded") ||
+          "";
+        const description = cleanDescription(rawDescription);
+        const link = text(item, "link") || text(item, "guid") || "#";
+        const pubDateText = text(item, "pubDate") || text(item, "date") || "";
+        const pubDate = parseDate(pubDateText);
+        const image = findImage(item);
+
+        return {
+          title,
+          description,
+          link,
+          pubDateText,
+          pubDate,
+          image,
+          source: sourceFromUrl(link)
+        };
+      });
+
+      items.sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
+
+      if (isInvalidDate(channel.updatedDate) && items.length) {
+        channel.updatedDate = items[0].pubDate;
+      }
+
+      return {
+        channel,
+        items
+      };
+    }
+
+    function applyChannelMetadata(channel, feedUrl) {
+      document.title = channel.title ? `${channel.title} – RSS` : "Fruktpolitik – RSS";
+
+      const metaDescription = document.querySelector('meta[name="description"]');
+      if (metaDescription && channel.description) {
+        metaDescription.setAttribute("content", channel.description);
+      }
+
+      pageTitleEl.textContent = channel.title || "Fruktpolitik";
+      pageDescriptionEl.textContent = channel.description || "Senaste nyheter från RSS-flödet.";
+      eyebrowTextEl.textContent = `${channel.title || "Fruktpolitik"} · RSS`;
+
+      if (channel.link) {
+        footerTextEl.innerHTML = `© <a href="${escapeAttribute(channel.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(channel.title || "Fruktpolitik")}</a> · Källor öppnas i ny flik.`;
+      }
+
+      setStatus(`RSS hämtad från: ${feedUrl}`);
+    }
+
+    function renderItems(items, channel, feedUrl) {
+      if (!items.length) {
+        countEl.textContent = `0 nyheter · senast uppdaterad ${formatDateTime(channel.updatedDate)}`;
+        setStatus(`Inga <item>-poster hittades i RSS-flödet: ${feedUrl}`);
+        feedEl.innerHTML = `<div class="empty">RSS-flödet laddades, men innehöll inga nyheter.</div>`;
+        return;
+      }
+
+      countEl.textContent = `${items.length} nyheter · senast uppdaterad ${formatDateTime(channel.updatedDate)}`;
+      feedEl.innerHTML = items.map(renderCard).join("");
+    }
+
+    function renderCard(item) {
+      const safeTitle = escapeHtml(item.title);
+      const safeDescription = escapeHtml(item.description);
+      const safeLink = escapeAttribute(item.link);
+      const safeSource = escapeHtml(item.source || "Källa");
+      const readableDate = formatDateTime(item.pubDate);
+      const isoDate = isInvalidDate(item.pubDate) ? "" : item.pubDate.toISOString();
+
+      const thumb = item.image
+        ? `
+          <a class="thumb" href="${safeLink}" target="_blank" rel="noopener noreferrer" aria-label="Öppna artikel">
+            <img src="${escapeAttribute(item.image)}" alt="" loading="lazy">
+          </a>
+        `
+        : `
+          <a class="thumb thumb--empty" href="${safeLink}" target="_blank" rel="noopener noreferrer" aria-label="Öppna artikel">
+            <span>${safeSource}</span>
+          </a>
+        `;
+
+      return `
+        <article class="card">
+          ${thumb}
+          <div class="card__body">
+            <div class="meta">
+              <time datetime="${escapeAttribute(isoDate)}">${escapeHtml(readableDate)}</time>
+              <span class="dot"></span>
+              <span>${safeSource}</span>
+              <span class="tag">RSS</span>
+            </div>
+            <h2><a href="${safeLink}" target="_blank" rel="noopener noreferrer">${safeTitle}</a></h2>
+            <p>${safeDescription}</p>
+            <a class="read-more" href="${safeLink}" target="_blank" rel="noopener noreferrer">Läs källan <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      `;
+    }
+
+    function text(parent, selector) {
+      if (!parent) return "";
+      const node = parent.querySelector(selector);
+      return node ? node.textContent.trim() : "";
+    }
+
+    function textByTagName(parent, tagName) {
+      if (!parent) return "";
+      const nodes = parent.getElementsByTagName(tagName);
+      return nodes.length ? nodes[0].textContent.trim() : "";
+    }
+
+    function cleanDescription(value) {
+      const div = document.createElement("div");
+      div.innerHTML = value || "";
+      const text = div.textContent || div.innerText || "";
+      return text.replace(/\s+/g, " ").trim();
+    }
+
+    function findImage(item) {
+      const directImage = text(item, "image");
+      if (isImageUrl(directImage)) return directImage;
+
+      const enclosure = Array.from(item.querySelectorAll("enclosure"))
+        .find((node) => (node.getAttribute("type") || "").startsWith("image/"));
+      if (enclosure?.getAttribute("url")) return enclosure.getAttribute("url");
+
+      const mediaContent = Array.from(item.getElementsByTagName("media:content"))
+        .find((node) => (node.getAttribute("medium") === "image") || (node.getAttribute("type") || "").startsWith("image/"));
+      if (mediaContent?.getAttribute("url")) return mediaContent.getAttribute("url");
+
+      const mediaThumbnail = item.getElementsByTagName("media:thumbnail")[0];
+      if (mediaThumbnail?.getAttribute("url")) return mediaThumbnail.getAttribute("url");
+
+      const itunesImage = item.getElementsByTagName("itunes:image")[0];
+      if (itunesImage?.getAttribute("href")) return itunesImage.getAttribute("href");
+
+      const htmlSources = [
+        text(item, "description"),
+        textByTagName(item, "content:encoded")
+      ];
+
+      for (const html of htmlSources) {
+        const src = firstImageFromHtml(html);
+        if (src) return src;
+      }
+
+      return "";
+    }
+
+    function firstImageFromHtml(html) {
+      if (!html) return "";
+      const div = document.createElement("div");
+      div.innerHTML = html;
+      const img = div.querySelector("img[src]");
+      return img ? img.getAttribute("src") : "";
+    }
+
+    function parseDate(value) {
+      const date = value ? new Date(value) : new Date(0);
+      return isInvalidDate(date) ? new Date(0) : date;
+    }
+
+    function isInvalidDate(date) {
+      return !date || Number.isNaN(date.getTime()) || date.getTime() === 0;
+    }
+
+    function formatDateTime(date) {
+      if (isInvalidDate(date)) {
+        return "okänt datum";
+      }
+
+      return new Intl.DateTimeFormat("sv-SE", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    function sourceFromUrl(url) {
+      try {
+        const host = new URL(url).hostname.replace(/^www\./, "");
+        const first = host.split(".")[0] || host;
+        return first.charAt(0).toUpperCase() + first.slice(1);
+      } catch {
+        return "Källa";
+      }
+    }
+
+    function isImageUrl(url) {
+      return /^https?:\/\//i.test(url || "") || /\.(jpg|jpeg|png|webp|gif|avif)(\?.*)?$/i.test(url || "");
+    }
+
+    function setStatus(message, isError = false) {
+      statusEl.textContent = message;
+      statusEl.className = isError ? "status status--error" : "status";
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
+  </script>
+</body>
+</html>
