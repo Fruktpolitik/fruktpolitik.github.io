@@ -4,7 +4,7 @@ from openai import OpenAI
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-prompt = Path("rss_prompt.txt").read_text(encoding="utf-8")
+prompt = Path("scripts/rss_prompt.txt").read_text(encoding="utf-8")
 
 response = client.responses.create(
     model=os.getenv("OPENAI_MODEL", "gpt-5.5"),
