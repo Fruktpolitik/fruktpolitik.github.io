@@ -457,8 +457,8 @@ func writeAggregatedRSS(filename string, items []NewsItem) error {
 		MediaNS: "http://search.yahoo.com/mrss/",
 		Channel: AggregatedChannel{
 			Title:         "Fruktpolitik",
-			Description:   "Aggregerade nyheter om kontroverser kopplade till M, L, KD, SD och deras politiker",
-			Link:          "https://fruktpolitik.se/",
+			Description:   "Den allra senaste Fruktpolitiken",
+			Link:          "https://fruktpolitik.se",
 			Language:      "sv-se",
 			LastBuildDate: time.Now().Format(time.RFC1123Z),
 			Items:         aggregatedItems,
