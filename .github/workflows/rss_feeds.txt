@@ -1,0 +1,12 @@
+# Lägg en RSS/Atom-feed per rad.
+# Exempel på svenska nyhetsflöden. Justera fritt.
+https://www.svt.se/nyheter/rss.xml
+https://www.svt.se/nyheter/inrikes/rss.xml
+https://www.dn.se/rss/
+https://www.svd.se/?service=rss
+https://www.expressen.se/rss/nyheter/
+https://www.aftonbladet.se/rss.xml
+https://www.gp.se/nyheter/rss.xml
+https://www.sydsvenskan.se/rss.xml
+https://www.dagensarena.se/feed/
+https://omni.se/feed
