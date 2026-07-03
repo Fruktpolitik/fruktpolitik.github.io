@@ -6,9 +6,8 @@ on:
     branches:
       - main
   schedule:
-    # Kör en gång per timme. GitHub Actions kör scheman på default branch.
+    # Runs once per hour. GitHub Actions schedules use UTC.
     - cron: '0 * * * *'
-      timezone: 'Europe/Stockholm'
 
 permissions:
   contents: read
@@ -33,27 +32,13 @@ jobs:
           cache: true
 
       - name: Prepare output folder
-        run: mkdir -p public
+        run: |
+          rm -rf public
+          mkdir -p public
+          cp index.html public/index.html
 
       - name: Run RSS aggregator
         run: go run ./rss_aggregator.go rss_feeds.txt public/aggregated.xml
-
-      - name: Add simple index page
-        run: |
-          cat > public/index.html <<'HTML'
-          <!doctype html>
-          <html lang="sv">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <title>Fruktpolitik RSS</title>
-          </head>
-          <body>
-            <h1>Fruktpolitik RSS</h1>
-            <p><a href="./aggregated.xml">Ladda ned aggregated.xml</a></p>
-          </body>
-          </html>
-          HTML
 
       - name: Upload generated RSS as workflow artifact
         uses: actions/upload-artifact@v4
