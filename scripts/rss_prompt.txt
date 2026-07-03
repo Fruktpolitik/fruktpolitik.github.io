@@ -1,0 +1,40 @@
+sök brett och djupt på webben efter dom senaste nyheterna med kontroverser kring moderaterna, kristdemokraterna, sverigedemokraterna och liberalerna. 
+
+Jag vill enbart ha svaret som ett RSS 2.0 dokument, se nedan mall.
+
+Varje nyhet skall vara en <item>
+
+för varje <item>, fyll följande properties:
+
+title: nyhetsrubrik
+description: summera artikeln med max 50 ord.
+link: länken till källan
+pubDate: nyhetens publiceringsdatum
+image: bild, men bara om nyheten har en bild. om nyheten inte har en bild så utelämnar du det här elementet.
+
+Sortera alla items på pubDate i fallande ordning.
+
+uppdatera channel lastBuildDate och lastBuildDate.
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+ <title>Fruktpolitik</title>
+ <description>Den allra senaste fruktpolitiken</description>
+ <link>https://fruktpolitik.se</link>
+ <lastBuildDate>Mon, 6 Sep 2010 00:01:00 +0000</lastBuildDate>
+ <pubDate>Sun, 6 Sep 2009 16:20:00 +0000</pubDate>
+ <ttl>1800</ttl>
+
+ <item>
+  <title>Example entry</title>
+  <description>Here is some text containing an interesting description.</description>
+  <link>http://www.example.com/blog/post/1</link>
+  <image>http://www.example.com/blog/post/1/image.jpg</link>
+  <pubDate>Sun, 6 Sep 2009 16:20:00 +0000</pubDate>
+ </item>
+
+</channel>
+</rss>
+
+
