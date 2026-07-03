@@ -1,0 +1,82 @@
+name: Build and publish RSS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  schedule:
+    # Kör en gång per timme. GitHub Actions kör scheman på default branch.
+    - cron: '0 * * * *'
+      timezone: 'Europe/Stockholm'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: 'stable'
+          cache: true
+
+      - name: Prepare output folder
+        run: mkdir -p public
+
+      - name: Run RSS aggregator
+        run: go run ./rss_aggregator.go rss_feeds.txt public/aggregated.xml
+
+      - name: Add simple index page
+        run: |
+          cat > public/index.html <<'HTML'
+          <!doctype html>
+          <html lang="sv">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Fruktpolitik RSS</title>
+          </head>
+          <body>
+            <h1>Fruktpolitik RSS</h1>
+            <p><a href="./aggregated.xml">Ladda ned aggregated.xml</a></p>
+          </body>
+          </html>
+          HTML
+
+      - name: Upload generated RSS as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-rss
+          path: public/aggregated.xml
+          retention-days: 30
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
