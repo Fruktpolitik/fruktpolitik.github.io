@@ -1,0 +1,46 @@
+name: Update AI generated file
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 4 * * *" # 06:30 svensk sommartid, GitHub cron körs i UTC
+
+permissions:
+  contents: write
+
+jobs:
+  update-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install openai
+
+      - name: Generate file from prompt
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: gpt-5.5
+          OUTPUT_FILE: public/newsfeed.xml
+        run: python scripts/update_ai_file.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git add public/newsfeed.xml
+          git commit -m "Update AI generated file"
+          git push
